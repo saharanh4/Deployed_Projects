@@ -56,6 +56,6 @@ def find_drop_col(X_train: pd.DataFrame, missing_thresh: float, id_ratio: float)
     }
 
 
-def apply_drop_columns(X: pd.DataFrame, drops: dict) -> pd.DataFrame:
+def apply_drop_col(X: pd.DataFrame, drops: dict) -> pd.DataFrame:
     all_cols = [c for cols in drops.values() for c in cols]
     return X.drop(columns=all_cols, errors="ignore")
