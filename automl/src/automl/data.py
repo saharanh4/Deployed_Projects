@@ -2,6 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 
+FILE_PATH = "../../data/wine+quality/winequality-red.csv"
+
 def load_data(path:str) -> pd.DataFrame:
     p = Path(path)
     if not p.is_file():

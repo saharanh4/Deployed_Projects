@@ -30,7 +30,7 @@ def clean_rows(df: pd.DataFrame, target:str):
     report["final_shape"] = df.shape
     return df, report
 
-def find_drop_col(X_train: pd.DataFrame, missing_thresh: float, id_ratio: float) -> dict:
+def find_drop_columns(X_train: pd.DataFrame, missing_thresh: float, id_ratio: float) -> dict:
     feats = list(X_train.columns)
 
     constant = [c for c in feats if X_train[c].nunique(dropna=False) <= 1]
@@ -56,6 +56,6 @@ def find_drop_col(X_train: pd.DataFrame, missing_thresh: float, id_ratio: float)
     }
 
 
-def apply_drop_col(X: pd.DataFrame, drops: dict) -> pd.DataFrame:
+def apply_drop_columns(X: pd.DataFrame, drops: dict) -> pd.DataFrame:
     all_cols = [c for cols in drops.values() for c in cols]
     return X.drop(columns=all_cols, errors="ignore")
