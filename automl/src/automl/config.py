@@ -64,7 +64,7 @@ def _tree_spaces():
         },
     }
 
-def build_task_config(cfg: Config, n_classes: int | None = None) -> dict:
+def build_task_config(cfg: config, n_classes: int | None = None) -> dict:
     """Task settings for cfg.task. n_classes is required for classification."""
     rs = cfg.random_state
 
