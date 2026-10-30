@@ -5,6 +5,8 @@ from sklearn.model_selection import train_test_split
 from automl.cleaning import apply_drop_columns, clean_rows, find_drop_columns
 from automl.data import load_data
 from automl.preprocessing import build_preprocessor
+from automl.config import Config, build_task_config
+from automl.models import build_model_pipelines
 
 ROOT = Path(__file__).resolve().parents[1]
 CSV = ROOT / "data" / "wine+quality" / "winequality-red.csv"
@@ -21,3 +23,8 @@ X_tr, X_te = apply_drop_columns(X_tr, drops), apply_drop_columns(X_te, drops)
 pre, num, cat, bad = build_preprocessor(X_tr)
 Xt = pre.fit_transform(X_tr)
 print(len(num), len(cat), bad, Xt.shape, pre.transform(X_te).shape)
+
+cfg = Config(path=str(CSV), target="quality", task="classification")
+task_cfg = build_task_config(cfg, n_classes=y_tr.nunique())
+pipes = build_model_pipelines(task_cfg, pre)
+print(list(pipes), task_cfg["metrics"]["ROC_AUC"])
