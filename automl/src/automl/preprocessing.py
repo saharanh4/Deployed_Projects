@@ -18,7 +18,6 @@ def build_preprocessor(
     numeric_cols = X_train.select_dtypes(include='number').columns.to_list()
     categorical_cols = X_train.select_dtypes(include=['string', 'object', 'category', 'bool']).columns.to_list()
     handled = set(numeric_cols) | set(categorical_cols)
-    handled = [c for c in X_train.columns if c not in handled]
 
     unsupported_cols = [c for c in X_train.columns if c not in handled]
     if unsupported_cols:
