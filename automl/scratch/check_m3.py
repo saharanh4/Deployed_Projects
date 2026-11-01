@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 from automl.cleaning import apply_drop_columns, clean_rows, find_drop_columns
-from automl.config import Config, build_task_config
+from automl.config import config, build_task_config
 from automl.data import load_data, split_data
 from automl.models import build_model_pipelines
 from automl.preprocessing import build_preprocessor
@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CSV = ROOT / "data" / "wine+quality" / "winequality-red.csv"
 
 # config (n_iter=5 is for this check only; the default is 30)
-cfg = Config(path=str(CSV), target="quality", task="classification", n_iter=5)
+cfg = config(path=str(CSV), target="quality", task="classification", n_iter=5)
 
 # load + row cleaning
 df, _ = clean_rows(load_data(cfg.path), cfg.target)
