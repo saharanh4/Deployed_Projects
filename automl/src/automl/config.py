@@ -26,6 +26,7 @@ class config:
     n_iter: int = 30
     missing_thresh: float = 0.5
     id_ratio: float = 0.95
+    n_jobs: int = -1
     out_dir: str = "runs"
 
     def __post_init__(self):
