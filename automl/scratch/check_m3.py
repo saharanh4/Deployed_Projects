@@ -7,6 +7,7 @@ from automl.data import load_data, split_data
 from automl.models import build_model_pipelines
 from automl.preprocessing import build_preprocessor
 from automl.train import benchmark_models, build_scoreboard, tune_top_k
+from automl.evaluate import final_evaluation, save_artifact
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
@@ -14,7 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 CSV = ROOT / "data" / "wine+quality" / "winequality-red.csv"
 
 # n_iter=5 is for this check only; the default is 30
-config = config(path=str(CSV), target="quality", task="classification", n_iter=5)
+config = config(path=str(CSV), target="quality", task="classification",
+                n_iter=5, out_dir=str(ROOT / "runs"))
 
 df, _ = clean_rows(load_data(config.path), config.target)
 
@@ -43,3 +45,14 @@ tuning, tuned_models, terrs = tune_top_k(task_cfg, sb, pipes, X_tr, y_tr, config
 print(tuning.drop(columns="Best_params").round(4).to_string())
 print(tuning[["Model", "Selected", "Best_params"]].to_string())
 print(terrs)
+
+best_name, best_model, best_scores, base_scores, final_df = final_evaluation(
+    task_cfg, tuning, tuned_models, pipes, X_tr, y_tr, X_te, y_te
+)
+print(final_df.round(4).to_string())
+
+run_dir = save_artifact(
+    config, task_cfg, best_name, best_model, best_scores, base_scores,
+    tuning, X_tr, names, drops, bad,
+)
+print(run_dir)
