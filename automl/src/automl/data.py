@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
-FILE_PATH = "../../data/wine+quality/winequality-red.csv"
+FILE_PATH = "../../data/insurance/insurance.csv"
 
 def load_data(path:str) -> pd.DataFrame:
     p = Path(path)

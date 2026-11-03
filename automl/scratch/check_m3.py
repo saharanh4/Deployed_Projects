@@ -12,10 +12,10 @@ from automl.evaluate import final_evaluation, save_artifact
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
 ROOT = Path(__file__).resolve().parents[1]
-CSV = ROOT / "data" / "wine+quality" / "winequality-red.csv"
+CSV = ROOT / "data" / "insurance" / "insurance.csv"
 
 # n_iter=5 is for this check only; the default is 30
-config = config(path=str(CSV), target="quality", task="classification",
+config = config(path=str(CSV), target="quality", task="regression",
                 n_iter=5, out_dir=str(ROOT / "runs"))
 
 df, _ = clean_rows(load_data(config.path), config.target)
