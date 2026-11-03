@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CSV = ROOT / "data" / "insurance" / "insurance.csv"
 
 # n_iter=5 is for this check only; the default is 30
-config = config(path=str(CSV), target="quality", task="regression",
+config = config(path=str(CSV), target="charges", task="regression",
                 n_iter=5, out_dir=str(ROOT / "runs"))
 
 df, _ = clean_rows(load_data(config.path), config.target)
