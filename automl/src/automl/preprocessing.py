@@ -8,35 +8,34 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 logger = logging.getLogger(__name__)
 
-def build_preprocessor(
-        X_train: pd.DataFrame,
-        num_strategy: str = "median",
-        add_indicator: bool = True,
-        use_scaler: bool = True,
-        cat_strategy: str = "most_frequent",
-):
-    numeric_cols = X_train.select_dtypes(include='number').columns.to_list()
-    categorical_cols = X_train.select_dtypes(include=['string', 'object', 'category', 'bool']).columns.to_list()
+
+def build_preprocessor(X_train: pd.DataFrame):
+    numeric_cols = X_train.select_dtypes(include="number").columns.tolist()
+    categorical_cols = X_train.select_dtypes(
+        include=["string", "object", "category", "bool"]
+    ).columns.tolist()
     handled = set(numeric_cols) | set(categorical_cols)
-
     unsupported_cols = [c for c in X_train.columns if c not in handled]
+
     if unsupported_cols:
-        logger.warning("WARNING: unsupported dtypes, dropped from model: %s", unsupported_cols)
+        logger.warning("Unsupported dtypes, dropped from model: %s", unsupported_cols)
 
-    nums_steps = [("imputer", SimpleImputer(strategy=num_strategy, add_indicator=add_indicator))]
-    if use_scaler:
-        nums_steps.append(('scaler', StandardScaler()))
-
+    num_pipe = Pipeline([
+        ("imputer", SimpleImputer(strategy="median", add_indicator=True)),
+        ("scaler", StandardScaler()),
+    ])
     cat_pipe = Pipeline([
-        ('imputer', SimpleImputer(strategy=cat_strategy)),
-        ('encoder', OneHotEncoder(handle_unknown='ignore', sparse_output=False)),
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
     ])
 
-    preprocessor = ColumnTransformer([
-        ('num', Pipeline(nums_steps), numeric_cols),
-        ('cat', cat_pipe, categorical_cols),
-    ],
-    remainder='drop',
+    preprocessor = ColumnTransformer(
+        [("num", num_pipe, numeric_cols), ("cat", cat_pipe, categorical_cols)],
+        remainder="drop",
     )
-
-    return preprocessor, numeric_cols, categorical_cols, unsupported_cols
+    info = {
+        "numeric_cols": numeric_cols,
+        "categorical_cols": categorical_cols,
+        "unsupported_cols": unsupported_cols,
+    }
+    return preprocessor, info
