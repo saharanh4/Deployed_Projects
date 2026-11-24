@@ -1,6 +1,8 @@
 import pandas as pd
 
+
 def clean_rows(df: pd.DataFrame, target: str):
+    """Row-level cleaning. Safe before the split (uses no column statistics)."""
     report = {"initial_shape": df.shape}
 
     n = len(df)
