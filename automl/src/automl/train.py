@@ -41,7 +41,7 @@ def benchmark_models(task_cfg: dict, pipelines: dict, X_train, y_train, n_jobs: 
     return pd.DataFrame(rows), errors
 
 
-def build_scoreboard(task_cfg: dict, benchmark_df: pd.DataFrame, errors: dict | None = None) -> pd.DataFrame:
+def build_scoreboard(task_cfg: dict, benchmark_df: pd.DataFrame) -> pd.DataFrame:
     pm, asc = task_cfg["primary_metric"], task_cfg["ascending"]
     mean_col, std_col = f"{pm}_mean", f"{pm}_std"
 
@@ -49,10 +49,6 @@ def build_scoreboard(task_cfg: dict, benchmark_df: pd.DataFrame, errors: dict | 
         raise RuntimeError("No model completed benchmarking")
     if "Baseline" not in benchmark_df["Model"].values:
         raise ValueError("Baseline row missing, cannot compute improvement")
-
-    if errors:
-        for name, msg in errors.items():
-            logger.warning("Excluded from scoreboard: %s -> %s", name, msg)
 
     sb = benchmark_df.sort_values(mean_col, ascending=asc).reset_index(drop=True)
     sb.insert(0, "Rank", sb.index + 1)
