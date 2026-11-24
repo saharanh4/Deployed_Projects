@@ -65,13 +65,13 @@ def build_scoreboard(task_cfg: dict, benchmark_df: pd.DataFrame) -> pd.DataFrame
 
 
 def tune_top_k(task_cfg: dict, scoreboard: pd.DataFrame, pipelines: dict,
-               X_train, y_train, cfg):
+               X_train, y_train, config):
     pm, asc = task_cfg["primary_metric"], task_cfg["ascending"]
     scoring = task_cfg["metrics"][pm]
     negated = scoring.startswith("neg_")
 
     candidates = (
-        scoreboard.loc[scoreboard["Model"] != "Baseline", "Model"].head(cfg.k).tolist()
+        scoreboard.loc[scoreboard["Model"] != "Baseline", "Model"].head(config.k).tolist()
     )
     rows, best_estimators, errors = [], {}, {}
 
@@ -86,8 +86,8 @@ def tune_top_k(task_cfg: dict, scoreboard: pd.DataFrame, pipelines: dict,
                 search = RandomizedSearchCV(
                     pipelines[name],
                     {f"model__{p}": d for p, d in space.items()},
-                    n_iter=cfg.n_iter, scoring=scoring, cv=task_cfg["cv"],
-                    random_state=cfg.random_state, n_jobs=cfg.n_jobs,
+                    n_iter=config.n_iter, scoring=scoring, cv=task_cfg["cv"],
+                    random_state=config.random_state, n_jobs=config.n_jobs,
                     refit=True, error_score="raise",
                 )
                 search.fit(X_train, y_train)
