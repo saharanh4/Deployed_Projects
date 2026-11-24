@@ -46,35 +46,28 @@ def final_evaluation(task_cfg: dict, tuning_df: pd.DataFrame, tuned_models: dict
     return best_name, best_model, best_scores, base_scores, result
 
 
-def save_artifact(config, task_cfg: dict, best_name: str, best_model,
-                  best_scores: dict, base_scores: dict, tuning_df: pd.DataFrame,
-                  X_train, class_names=None, drops=None, unsupported_cols=None) -> Path:
-    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    run_dir = Path(config.out_dir) / f"{stamp}_{Path(config.path).stem}"
-    run_dir.mkdir(parents=True, exist_ok=False)
-
-    joblib.dump(best_model, run_dir / "model.joblib")
-
+def build_metadata(config, task_cfg: dict, best_name: str, best_scores: dict,
+                   base_scores: dict, tuning_df: pd.DataFrame, data_info: dict) -> dict:
+    """data_info keys: class_names, drops, numeric_cols, categorical_cols,
+    unsupported_cols, features."""
     pm = task_cfg["primary_metric"]
     row = tuning_df.loc[tuning_df["Model"] == best_name].iloc[0]
-    drops = drops or {}
-    dropped = [c for cols in drops.values() for c in cols]
-
-    metadata = {
+    return {
         "task": config.task,
         "target": config.target,
         "model": best_name,
         "selected": row["Selected"],
         "best_params": row["Best_params"],
         "primary_metric": pm,
-        "cv_score": row[f"Final_{pm}"],
+        "selection_cv_score": row[f"Final_{pm}"],
         "holdout_scores": best_scores,
         "baseline_holdout_scores": base_scores,
-        "class_names": class_names,
-        "drops": drops,
-        "unsupported_cols_dropped": unsupported_cols or [],
-        "features_after_drop": X_train.columns.tolist(),
-        "input_columns": X_train.columns.tolist() + dropped,
+        "class_names": data_info["class_names"],
+        "drops": data_info["drops"],
+        "numeric_cols": data_info["numeric_cols"],
+        "categorical_cols": data_info["categorical_cols"],
+        "unsupported_cols_dropped": data_info["unsupported_cols"],
+        "features": data_info["features"],
         "config": asdict(config),
         "versions": {
             "sklearn": sklearn.__version__,
@@ -84,6 +77,14 @@ def save_artifact(config, task_cfg: dict, best_name: str, best_model,
         },
         "saved_at": datetime.now().isoformat(timespec="seconds"),
     }
+
+
+def save_artifact(config, model, metadata: dict) -> Path:
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_dir = Path(config.out_dir) / f"{stamp}_{Path(config.path).stem}"
+    run_dir.mkdir(parents=True, exist_ok=False)
+
+    joblib.dump(model, run_dir / "model.joblib")
     with open(run_dir / "metadata.json", "w") as f:
         json.dump(metadata, f, indent=2, default=_jsonable)
 
