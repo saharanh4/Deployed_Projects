@@ -38,9 +38,9 @@ sb = build_scoreboard(task_cfg, bench)
 print(sb.round(4).to_string())
 print(errs)
 
-tuning, tuned_models, terrs = tune_top_k(task_cfg, sb, pipes, X_tr, y_tr, config)
+tuning, tuned_models, terr = tune_top_k(task_cfg, sb, pipes, X_tr, y_tr, config)
 print(tuning.drop(columns="Best_params").round(4).to_string())
-print(terrs)
+print(terr)
 
 best_name, best_model, best_scores, base_scores, final_df = final_evaluation(
     task_cfg, tuning, tuned_models, pipes, X_tr, y_tr, X_te, y_te
