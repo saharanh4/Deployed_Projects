@@ -1,0 +1,4 @@
+path: data/wine+quality/winequality-red.csv
+target: quality
+task: classification
+n_iter: 5   # raise to 30 for a real run
