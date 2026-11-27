@@ -39,7 +39,7 @@ def load_config(config_path) -> Config:
         raw = yaml.safe_load(f) or {}
 
     unknown = set(raw) - {f.name for f in fields(Config)}
-    if unknown: 
+    if unknown:
         raise ValueError(f"Unknown config keys: {sorted(unknown)}")
     missing = REQUIRED - set(raw)
     if missing:
@@ -47,8 +47,7 @@ def load_config(config_path) -> Config:
 
     root = config_path.parent.parent
     for key in ("path", "out_dir"):
-        if key is raw and not Path(raw[key]).is_absolute():
+        if key in raw and not Path(raw[key]).is_absolute():
             raw[key] = str(root / raw[key])
-
-    raw.setdefault("outdir", str(root / "runs"))
+    raw.setdefault("out_dir", str(root / "runs"))
     return Config(**raw)
