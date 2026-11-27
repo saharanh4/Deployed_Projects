@@ -1,0 +1,4 @@
+path: data/insurance/insurance.csv
+target: charges
+task: regression
+n_iter: 5   # raise to 30 for a real run
