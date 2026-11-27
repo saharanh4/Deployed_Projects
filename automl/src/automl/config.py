@@ -1,7 +1,10 @@
 from dataclasses import dataclass
+from pathlib import Path
+
+import yaml
 
 TASKS = ("regression", "classification")
-
+Required = {"path", "target", "task"}
 
 @dataclass(frozen=True)
 class Config:
@@ -27,3 +30,25 @@ class Config:
             raise ValueError(f"n_splits must be >= 2, got {self.n_splits}")
         if self.k < 1 or self.n_iter < 1:
             raise ValueError("k and n_iter must be >= 1")
+
+def load_config(config_path) -> Config:
+    """Build a Config from YAML. Relative paths resolve against the project root
+    (the folder that contains configs/)."""
+    config_path = Path(config_path).resolve()
+    with open(config_path) as f:
+        raw = yaml.safe_load(f) or {}
+
+    unknown = set(raw) - {f.name for f in fields(Config)}
+    if unknown: 
+        raise ValueError(f"Unknown config keys: {sorted(unknown)}")
+    missing = REQUIRED - set(raw)
+    if missing:
+        raise ValueError(f"Missing required config keys: {sorted(missing)}")
+
+    root = config_path.parent.parent
+    for key in ("path", "out_dir"):
+        if key is raw and not Path(raw[key]).is_absolute():
+            raw[key] = str(root / raw[key])
+
+    raw.setdefault("outdir", str(root / "runs"))
+    return Config(**raw)
